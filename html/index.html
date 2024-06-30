@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Data</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    body div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      height: 90vh;
+    }
+
+    th,
+    td {
+      border: 1px solid #333;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5em;
+    }
+
+    th {
+      background-color: #333;
+    }
+
+    tr:nth-child(even) {
+      background-color: #222;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #1a1a1a;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Location Data</h1>
+  <div>
+    <table>
+      <tbody id="locationTableBody">
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function getLocation() {
+      let result;
+
+      if (navigator.geolocation) {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+
+        result = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          location: undefined
+        }
+
+        try {
+          let prefix = '';
+          // Set a prefix if debugging
+          //prefix = '/proxy/30001';
+          const response = await fetch(`${prefix}/ws/getCity?latitude=${result.latitude}&longitude=${result.longitude}`, {
+            method: "get"
+          });
+          let json = await response.json();
+          if (json) {
+            result = json;
+          }
+        } catch (ex) {
+          console.log(ex.toString());
+        }
+      }
+
+      return result;
+    }
+
+    function updateTable(jsonData, titles) {
+      const tableBody = document.getElementById('locationTableBody');
+      tableBody.innerHTML = '';
+
+      const locationData = jsonData.location;
+      for (const [key, value] of Object.entries(locationData)) {
+        const row = document.createElement('tr');
+
+        const keyCell = document.createElement('td');
+        keyCell.textContent = titles[key];
+        row.appendChild(keyCell);
+
+        const valueCell = document.createElement('td');
+        valueCell.textContent = value;
+        row.appendChild(valueCell);
+
+        tableBody.appendChild(row);
+      }
+    }
+
+    async function main() {
+      let jsonData;
+
+      try {
+        jsonData = await getLocation();
+      }
+      catch (e) {
+        jsonData = {
+          "success": true,
+          "location": {
+            "city": "Long Island City (Sample Data, browser location not enabled)",
+            "country": "US",
+            "latitude": 40.74482,
+            "longitude": -73.94875,
+            "distance": 1.947279774738963,
+            "municipality": "NY",
+            "population": 25595,
+            "sunrise": "2024-06-19T09:25:38.981Z",
+            "sunset": "2024-06-20T00:31:24.776Z",
+            "timezone": "America/New_York",
+            "localTime": "2024-06-19T03:24:59.385-04:00",
+            "timezoneOffset": -4
+          }
+        };
+      }
+
+      const titles = {
+        city: "City",
+        country: "Country",
+        latitude: "Latitude",
+        longitude: "Longitude",
+        distance: "Distance (km)",
+        municipality: "Municipality",
+        population: "Population",
+        sunrise: "Sunrise Time",
+        sunset: "Sunset Time",
+        timezone: "Timezone",
+        localTime: "Local Time",
+        timezoneOffset: "Timezone Offset"
+      };
+      updateTable(jsonData, titles);
+    }
+
+    main();
+
+  </script>
+</body>
+
+</html>
