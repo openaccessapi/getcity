@@ -73,16 +73,17 @@ npm install
     const API_KEY = 'your key here';
     ```
 3. **Update html/index.html if necessary**
+
    By default, the URL will default to http://localhost:30001. If you are running through a debugger, you may need to uncomment and change the following line in html/index.html.
     ```
     // Set a prefix if debugging
     //prefix = '/proxy/30001';
     ```
-4. **Run the Project from command line**:
+5. **Run the Project from command line**:
     ```bash
     node app.js
     ```
-5. **Open Your Browser**: Navigate to `http://localhost:30001` to see the example in action.
+6. **Open Your Browser**: Navigate to `http://localhost:30001` to see the example in action.
 
 ## License
 
